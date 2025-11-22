@@ -7,7 +7,7 @@ from utils.file_loader import load_instructions_file
 designer_agent = LlmAgent(
     name = 'designer_agent',
     model = 'gemini-flash-latest',
-    instructions = load_instructions_file('agents/designer/instructions.txt'),
+    instruction = load_instructions_file('agents/designer/instructions.txt'),
     description = load_instructions_file('agents/designer/description.txt'),
     output_key = 'designer_output'
 )
