@@ -177,6 +177,9 @@ class GitOperationsTool:
             Dict with status and branch information
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -213,6 +216,9 @@ class GitOperationsTool:
             Dict with status and branch information
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -248,6 +254,9 @@ class GitOperationsTool:
         Returns:
             Dict with status information
         """
+        if not self.repo:
+            self._ensure_repo_loaded()
+
         if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
@@ -296,6 +305,9 @@ class GitOperationsTool:
             Dict with commit information
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -338,6 +350,9 @@ class GitOperationsTool:
         Returns:
             Dict with push status
         """
+        if not self.repo:
+            self._ensure_repo_loaded()
+
         if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
@@ -395,6 +410,9 @@ class GitOperationsTool:
             Dict with pull status
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -424,6 +442,21 @@ class GitOperationsTool:
                 "error": f"Failed to pull: {str(e)}"
             }
 
+    def _ensure_repo_loaded(self) -> bool:
+        """
+        Attempt to load/reload the repository from the current repo_path.
+
+        Returns:
+            True if repo is loaded successfully, False otherwise
+        """
+        if self.repo_path and os.path.exists(self.repo_path):
+            try:
+                self.repo = Repo(self.repo_path)
+                return True
+            except git.exc.InvalidGitRepositoryError:
+                return False
+        return False
+
     def get_status(self) -> Dict[str, Any]:
         """
         Get the current repository status.
@@ -431,6 +464,10 @@ class GitOperationsTool:
         Returns:
             Dict with repository status information
         """
+        # Attempt to load repo if not already loaded
+        if not self.repo:
+            self._ensure_repo_loaded()
+
         if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
@@ -469,6 +506,9 @@ class GitOperationsTool:
             Dict with branch information
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -502,6 +542,9 @@ class GitOperationsTool:
         Returns:
             Dict with commit history
         """
+        if not self.repo:
+            self._ensure_repo_loaded()
+
         if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
@@ -544,6 +587,9 @@ class GitOperationsTool:
             Dict with status information
         """
         if not self.repo:
+            self._ensure_repo_loaded()
+
+        if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 
         try:
@@ -569,6 +615,9 @@ class GitOperationsTool:
         Returns:
             Dict with diff information
         """
+        if not self.repo:
+            self._ensure_repo_loaded()
+
         if not self.repo:
             return {"success": False, "error": "No repository loaded"}
 

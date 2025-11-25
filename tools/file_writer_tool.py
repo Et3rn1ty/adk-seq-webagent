@@ -3,12 +3,15 @@
 # PURPOSE:
 #   This module defines a single tool function, `write_to_file`, which saves
 #   the provided content to a file with a customizable name and extension inside
-#   an output directory. This is used by agents to persist any type of generated
-#   content (HTML, JSON, text, CSV, etc.).
+#   the repository directory. This is used by agents to persist any type of
+#   generated content (HTML, JSON, text, CSS, JS, etc.).
 # =============================================================================
 
 # Import the `datetime` module to generate a unique timestamp for the filename.
 import datetime
+
+# Import `os` to access environment variables.
+import os
 
 # Import `Path` from `pathlib` for convenient and safe file/directory handling.
 from pathlib import Path
@@ -19,6 +22,8 @@ from pathlib import Path
 def write_to_file(content: str, filename: str = None, extension: str = "txt") -> dict:
     """
     Writes the given content to a file with a specified name and extension.
+    Files are written to the repository path specified in GIT_REPO_PATH environment variable,
+    or falls back to './output' if not set.
 
     Args:
         content (str): Content to be saved to disk.
@@ -31,6 +36,10 @@ def write_to_file(content: str, filename: str = None, extension: str = "txt") ->
         dict: A dictionary containing the status and generated file path.
     """
 
+    # Get the repository path from environment variable, fallback to './output'
+    repo_path = os.getenv("GIT_REPO_PATH", "./output")
+    base_dir = Path(repo_path)
+
     # If no filename is provided, generate one using the current timestamp.
     # Example: "250611_142317"
     if filename is None:
@@ -39,18 +48,19 @@ def write_to_file(content: str, filename: str = None, extension: str = "txt") ->
 
     # Ensure the extension doesn't have a leading dot, then construct the full filename.
     extension = extension.lstrip(".")
-    full_filename = f"output/{filename}.{extension}"
+    full_filename = base_dir / f"{filename}.{extension}"
 
-    # Ensure the "output" directory exists. If it doesn't, create it.
+    # Ensure the base directory exists. If it doesn't, create it.
     # `exist_ok=True` prevents an error if the directory already exists.
-    Path("output").mkdir(exist_ok=True)
+    # `parents=True` creates parent directories if needed.
+    base_dir.mkdir(parents=True, exist_ok=True)
 
     # Write the content to the constructed file.
     # `encoding='utf-8'` ensures proper character encoding.
-    Path(full_filename).write_text(content, encoding="utf-8")
+    full_filename.write_text(content, encoding="utf-8")
 
     # Return a dictionary indicating success, and the file path that was written.
     return {
         "status": "success",
-        "file": full_filename
+        "file": str(full_filename)
     }
