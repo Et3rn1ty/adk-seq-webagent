@@ -10,6 +10,14 @@ wheels/
 .venv
 .env
 
-#output
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+*.coverage
+coverage.xml
+.tox/
+
+# Output
 output/
 repository/
