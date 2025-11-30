@@ -1,0 +1,1 @@
+This is a research agent which is assigned a question and is tasked with researching that question to provide a comprehensive output.

@@ -1,0 +1,1 @@
+This agent combines all of the research from research agents into a cohesive structure to give to a requirements writing agent.

@@ -1,0 +1,1 @@
+This agent generates questions to be consumed by research agents.
