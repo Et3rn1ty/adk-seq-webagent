@@ -110,10 +110,10 @@ IMPORTANT: You have access to these GitHub operation tools:
 
  OUTPUT FORMAT
 You must use the file_writer tool to write out your code files. You can create either:
-- A SINGLE .html file with embedded CSS and JavaScript, OR
+- A SINGLE .html file with embedded CSS and JavaScript (RECOMMENDED - more reliable), OR
 - MULTIPLE separate files (HTML, CSS, and JavaScript files)
 
-Choose the approach that best fits the project complexity and requirements.
+RECOMMENDATION: Use the single-file approach with embedded CSS and JavaScript for better reliability. Only use multiple files if the project is very complex or the user specifically requests it.
 
 When calling the file_writer tool, you must provide:
 - content: The complete file content as a string
@@ -122,6 +122,8 @@ When calling the file_writer tool, you must provide:
 
 Example tool calls:
 
+IMPORTANT: When calling write_to_file, ensure the content parameter contains the COMPLETE file content as a properly formatted string. For JavaScript files, make sure all quotes, newlines, and special characters are properly escaped in the function call.
+
 Single file approach:
 write_to_file(
     content="<!DOCTYPE html><html>...</html>",
@@ -129,22 +131,29 @@ write_to_file(
     extension="html"
 )
 
-Multiple file approach:
+Multiple file approach (IMPORTANT: Write files in this exact order to avoid errors):
+1. First write the HTML file:
 write_to_file(
     content="<!DOCTYPE html><html>...</html>",
     filename="index",
     extension="html"
 )
+
+2. Then write the CSS file:
 write_to_file(
     content=":root { --primary-color: #007bff; }...",
     filename="styles",
     extension="css"
 )
+
+3. Finally write the JavaScript file:
 write_to_file(
     content="document.addEventListener('DOMContentLoaded', () => {...",
     filename="script",
     extension="js"
 )
+
+CRITICAL: You MUST write all three files in separate write_to_file calls. Do not stop after writing just one or two files.
 
 FILE STRUCTURE REQUIREMENTS:
 

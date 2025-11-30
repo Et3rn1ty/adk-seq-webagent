@@ -12,7 +12,7 @@ githubOps = GitHubOperationsTool()
 
 code_writer_agent = LlmAgent(
     name = 'code_writer_agent',
-    model = 'gemini-2.5-flash',
+    model = 'gemini-2.0-flash-exp',
     instruction = load_instructions_file('agents/code_writer/instructions.txt'),
     description = load_instructions_file('agents/code_writer/description.txt'),
     tools = [

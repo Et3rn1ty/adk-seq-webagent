@@ -36,31 +36,44 @@ def write_to_file(content: str, filename: str = None, extension: str = "txt") ->
         dict: A dictionary containing the status and generated file path.
     """
 
-    # Get the repository path from environment variable, fallback to './output'
-    repo_path = os.getenv("GIT_REPO_PATH", "./output")
-    base_dir = Path(repo_path)
+    try:
+        # Validate that content is a string
+        if not isinstance(content, str):
+            return {
+                "status": "error",
+                "error": f"Content must be a string, got {type(content).__name__}"
+            }
 
-    # If no filename is provided, generate one using the current timestamp.
-    # Example: "250611_142317"
-    if filename is None:
-        timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
-        filename = f"{timestamp}_generated_file"
+        # Get the repository path from environment variable, fallback to './output'
+        repo_path = os.getenv("GIT_REPO_PATH", "./output")
+        base_dir = Path(repo_path)
 
-    # Ensure the extension doesn't have a leading dot, then construct the full filename.
-    extension = extension.lstrip(".")
-    full_filename = base_dir / f"{filename}.{extension}"
+        # If no filename is provided, generate one using the current timestamp.
+        # Example: "250611_142317"
+        if filename is None:
+            timestamp = datetime.datetime.now().strftime("%y%m%d_%H%M%S")
+            filename = f"{timestamp}_generated_file"
 
-    # Ensure the base directory exists. If it doesn't, create it.
-    # `exist_ok=True` prevents an error if the directory already exists.
-    # `parents=True` creates parent directories if needed.
-    base_dir.mkdir(parents=True, exist_ok=True)
+        # Ensure the extension doesn't have a leading dot, then construct the full filename.
+        extension = extension.lstrip(".")
+        full_filename = base_dir / f"{filename}.{extension}"
 
-    # Write the content to the constructed file.
-    # `encoding='utf-8'` ensures proper character encoding.
-    full_filename.write_text(content, encoding="utf-8")
+        # Ensure the base directory exists. If it doesn't, create it.
+        # `exist_ok=True` prevents an error if the directory already exists.
+        # `parents=True` creates parent directories if needed.
+        base_dir.mkdir(parents=True, exist_ok=True)
 
-    # Return a dictionary indicating success, and the file path that was written.
-    return {
-        "status": "success",
-        "file": str(full_filename)
-    }
+        # Write the content to the constructed file.
+        # `encoding='utf-8'` ensures proper character encoding.
+        full_filename.write_text(content, encoding="utf-8")
+
+        # Return a dictionary indicating success, and the file path that was written.
+        return {
+            "status": "success",
+            "file": str(full_filename)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": f"Failed to write file: {str(e)}"
+        }
