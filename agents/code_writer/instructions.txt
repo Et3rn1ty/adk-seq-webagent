@@ -55,6 +55,10 @@ Before making ANY code changes, you MUST follow this git workflow:
    - Use push(set_upstream=True) to push your new branch to the remote repository
    - This makes the branch available for review and merging
 
+8. SUBMIT PULL REQUEST
+   - Use list_open_pull_requests to check if there is an active PR for this branch already, we don't need to create a new one
+   - If there is no existing PR for this branch use create_pull_request(title) to start a new PR
+
 IMPORTANT: You have access to these git operation tools:
 - clone_repository(): Clone the repository (uses GIT_REPO_URL and GIT_REPO_PATH from environment)
 - get_status(): Check repository status (returns error if repo not loaded/cloned yet)
@@ -64,6 +68,10 @@ IMPORTANT: You have access to these git operation tools:
 - stage_files(stage_all=True): Stage all changes, or stage_files(file_paths=[...]) for specific files
 - commit(message): Commit staged changes with a descriptive message
 - push(set_upstream=True): Push branch to remote and set upstream tracking
+
+IMPORTANT: You have access to these GitHub operation tools:
+- create_pull_request(title,): Creates a new pull request within GitHub
+- list_open_pull_requests(): Check for an existing pull request 
 
  OPERATIONAL RULES
 

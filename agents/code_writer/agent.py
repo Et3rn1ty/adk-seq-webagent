@@ -5,8 +5,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..'
 from utils.file_loader import load_instructions_file
 from tools.file_writer_tool import write_to_file
 from tools.git_operations_tool import GitOperationsTool
+from tools.github_ops_tool import GitHubOperationsTool
 
 gitOps = GitOperationsTool()
+githubOps = GitHubOperationsTool()
 
 code_writer_agent = LlmAgent(
     name = 'code_writer_agent',
@@ -22,6 +24,13 @@ code_writer_agent = LlmAgent(
         gitOps.checkout_branch,
         gitOps.stage_files,
         gitOps.commit,
-        gitOps.push
+        gitOps.push,
+        githubOps.create_pull_request,
+        githubOps.get_repository_info,
+        githubOps.get_pull_request,
+        githubOps.add_labels_to_pr,
+        githubOps.add_assignees_to_pr,
+        githubOps.add_reviewers_to_pr,
+        githubOps.list_open_pull_requests
     ]
 )

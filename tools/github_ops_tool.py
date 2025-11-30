@@ -128,7 +128,7 @@ class GitHubOperationsTool:
         self,
         title: str,
         head: Optional[str] = None,
-        base: str = "main",
+        base: str = "master",
         body: Optional[str] = None,
         draft: bool = False,
         maintainer_can_modify: bool = True
