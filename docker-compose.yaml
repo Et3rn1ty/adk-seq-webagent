@@ -1,0 +1,172 @@
+# =============================================================================
+# DOCKER COMPOSE CONFIGURATION FOR ADK MULTI-AGENT SYSTEM
+# =============================================================================
+# This docker-compose file orchestrates the containerized deployment of the
+# Google ADK multi-agent system with FastAPI web interface and REST API
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # WEB APPLICATION SERVICE
+  # ===========================================================================
+  # Main FastAPI application running the ADK multi-agent system
+  web:
+    # Build configuration
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Container name for easy reference
+    container_name: adk-web-agent
+
+    # Port mapping: host:container
+    # Maps port 8080 on host to port 8080 in container
+    # Access the web interface at http://localhost:8080
+    ports:
+      - "8080:8080"
+
+    # Environment variables
+    # These override any values in .env file
+    environment:
+      # Port configuration for uvicorn server
+      - PORT=8080
+
+      # Python environment settings
+      - PYTHONUNBUFFERED=1
+
+      # GCP configuration (if needed)
+      # - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+
+      # GitHub configuration (if needed)
+      # - GITHUB_TOKEN=${GITHUB_TOKEN}
+      # - GIT_REPO_URL=${GIT_REPO_URL}
+      # - GIT_REPO_PATH=${GIT_REPO_PATH}
+      # - GIT_DEFAULT_BRANCH=${GIT_DEFAULT_BRANCH}
+      # - GIT_USER_NAME=${GIT_USER_NAME}
+      # - GIT_USER_EMAIL=${GIT_USER_EMAIL}
+
+    # Load environment variables from .env file
+    # Create a .env file based on .env.example for local development
+    env_file:
+      - .env
+
+    # Volume mounts for development
+    # Uncomment these for live code reloading during development
+    # volumes:
+    #   # Mount source code for hot reload
+    #   - ./main.py:/app/main.py
+    #   - ./agents:/app/agents
+    #   - ./tools:/app/tools
+    #   - ./utils:/app/utils
+    #
+    #   # Persist session database
+    #   - ./sessions.db:/app/sessions.db
+
+    # Restart policy
+    # Automatically restart container if it crashes
+    restart: unless-stopped
+
+    # Health check
+    # Verifies the service is responding correctly
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Resource limits (optional)
+    # Uncomment and adjust based on your system resources
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '1'
+    #       memory: 512M
+
+    # Networking
+    # Connects to the default network for inter-service communication
+    networks:
+      - adk-network
+
+  # ===========================================================================
+  # DATABASE SERVICE (OPTIONAL)
+  # ===========================================================================
+  # PostgreSQL database for session storage (alternative to SQLite)
+  # Uncomment this section if you want to use PostgreSQL instead of SQLite
+  #
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: adk-postgres
+  #
+  #   environment:
+  #     - POSTGRES_DB=adk_sessions
+  #     - POSTGRES_USER=adk_user
+  #     - POSTGRES_PASSWORD=adk_password
+  #
+  #   ports:
+  #     - "5432:5432"
+  #
+  #   volumes:
+  #     # Persist database data
+  #     - postgres_data:/var/lib/postgresql/data
+  #
+  #   restart: unless-stopped
+  #
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U adk_user -d adk_sessions"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #
+  #   networks:
+  #     - adk-network
+  #
+  # NOTE: If using PostgreSQL, update SESSION_SERVICE_URI in main.py:
+  # SESSION_SERVICE_URI = "postgresql://adk_user:adk_password@db:5432/adk_sessions"
+
+  # ===========================================================================
+  # REDIS SERVICE (OPTIONAL)
+  # ===========================================================================
+  # Redis for caching and session management
+  # Uncomment if you need distributed caching
+  #
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: adk-redis
+  #
+  #   ports:
+  #     - "6379:6379"
+  #
+  #   volumes:
+  #     - redis_data:/data
+  #
+  #   restart: unless-stopped
+  #
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #
+  #   networks:
+  #     - adk-network
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+# Define custom network for service communication
+networks:
+  adk-network:
+    driver: bridge
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+# Named volumes for data persistence
+# Uncomment if using PostgreSQL or Redis
+# volumes:
+#   postgres_data:
+#   redis_data:
