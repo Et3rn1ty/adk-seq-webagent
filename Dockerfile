@@ -38,40 +38,31 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # If pyproject.toml and uv.lock don't change, this layer won't be rebuilt
 COPY pyproject.toml uv.lock ./
 
-# Install Python dependencies using uv
-# --system: Install into the system Python environment (not a virtual environment)
-# --frozen: Use exact versions from uv.lock without updating
-# --no-cache: Don't store uv cache to reduce image size
-# This installs: google-adk, gitpython, pygithub, python-dotenv, and their dependencies
-RUN uv sync --frozen --no-cache
-
 # =============================================================================
 # SECURITY: NON-ROOT USER CREATION
 # =============================================================================
 # Create a non-root user for security best practices
 # Running containers as root is a security risk - if the container is compromised,
 # the attacker would have root access to the container
-# 
+#
 # adduser flags explained:
 # --disabled-password: Don't set a password (login via key/token only)
 # --gecos "": Skip interactive prompts for user information
 # myuser: The username for our application user
 RUN adduser --disabled-password --gecos "" myuser && \
     chown -R myuser:myuser /app
-    
-# chown command breakdown:
-# - chown: Change ownership command
-# - -R: Recursive flag - applies ownership change to all files and subdirectories
-# - myuser:myuser: Sets both user and group ownership to 'myuser'
-#   * First 'myuser' = user owner (who owns the files)
-#   * Second 'myuser' = group owner (which group owns the files)
-# - /app: Target directory - changes ownership of /app and all its contents
-# 
-# Why this is needed:
-# - Files copied by COPY command are owned by root (since Docker runs as root)
-# - When we switch to 'myuser' later, that user needs read/write access
-# - Without this, the application would get "permission denied" errors
-# - This ensures 'myuser' can read application files and write to any output directories
+
+# Switch to non-root user for dependency installation
+# This ensures the virtual environment is created with correct ownership
+USER myuser
+
+# Install Python dependencies using uv as the non-root user
+# This ensures the virtual environment is created with correct paths for the container
+# --frozen: Use exact versions from uv.lock without updating
+# --no-cache: Don't store uv cache to reduce image size
+# This installs: google-adk, gitpython, pygithub, python-dotenv, uvicorn, and their dependencies
+# uv sync creates a virtual environment at /app/.venv by default
+RUN uv sync --frozen --no-cache
 
 # =============================================================================
 # APPLICATION CODE DEPLOYMENT
@@ -83,25 +74,18 @@ RUN adduser --disabled-password --gecos "" myuser && \
 # - tools/ directory (custom tools like file_writer_tool.py)
 # - utils/ directory (utilities like file_loader.py)
 # - Any other project files
-# 
+#
 # Note: .dockerignore file can be used to exclude unnecessary files
+# Files will be owned by root, but myuser has read access
 COPY . .
-
-# =============================================================================
-# SECURITY: SWITCH TO NON-ROOT USER
-# =============================================================================
-# Switch to the non-root user for all subsequent operations
-# This ensures the application runs with limited privileges
-# Even if there's a security vulnerability, the impact is minimized
-USER myuser
 
 # =============================================================================
 # ENVIRONMENT CONFIGURATION
 # =============================================================================
-# Add the user's local bin directory to PATH
-# This ensures any user-installed packages are accessible
-# Some Python packages install executables in ~/.local/bin
-ENV PATH="/home/myuser/.local/bin:$PATH"
+# Add the virtual environment bin directory to PATH
+# This ensures installed packages (like uvicorn) are accessible
+# uv sync creates a venv at /app/.venv, so we need /app/.venv/bin in PATH
+ENV PATH="/app/.venv/bin:/home/myuser/.local/bin:$PATH"
 
 # =============================================================================
 # CONTAINER STARTUP COMMAND
