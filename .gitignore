@@ -21,3 +21,9 @@ coverage.xml
 # Output
 output/
 repository/
+
+# Docker
+.dockerignore
+*.log
+docker-compose.override.yml
+.docker/
